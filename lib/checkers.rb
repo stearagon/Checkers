@@ -91,12 +91,13 @@ class Game
   end
 
   def move_convert(inputs)
+    debugger
     return [[inputs[0].to_i,inputs[1].to_i]] if inputs.length < 3
-    move = []
+    new_moves = []
     inputs.split(" ").each do |move|
-      move << [move[0].to_i,move[1].to_i]
+      new_moves << [move[0].to_i,move[1].to_i]
     end
-    move
+    new_moves
   end
 
 end
