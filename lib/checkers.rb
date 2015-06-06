@@ -38,16 +38,15 @@ class Game
   end
 
   def over?(current_player)
-    return true if !board.board.flatten.compact.any? { |piece| piece.color == current_player }
 
-    current_player_pieces = board.board.flatten.compact.select do |pieces|
-      pieces.color == current_player
+    board.board.flatten.compact.each do |piece|
+      if piece.color == current_player
+            return false if (!piece.jump_moves.empty? ||
+                              !piece.slide_moves.empty?)
+      end
     end
 
-    return true if current_player_pieces.all? { |piece| piece.jump_moves.empty? &&
-                                                    piece.slide_moves.empty? }
-
-    return false
+    return true
   end
 
   def toggle_player(player)
@@ -91,7 +90,7 @@ class Game
   end
 
   def move_convert(inputs)
-    debugger
+
     return [[inputs[0].to_i,inputs[1].to_i]] if inputs.length < 3
     new_moves = []
     inputs.split(" ").each do |move|
@@ -194,6 +193,16 @@ class Board
 
   end
 
+  def has_a_jump_move?(current_player)
+    board.flatten.compact.each do |piece|
+      if piece.color == current_player
+            return true if (!piece.jump_moves.empty?)
+      end
+    end
+
+    return false
+  end
+
 end
 
 
@@ -284,7 +293,11 @@ class Piece
 
 
   def perform_moves!(list_of_moves)
+    return false if board.has_a_jump_move?(self.color) && self.slide_moves.include?(list_of_moves.first)
+
     return true if list_of_moves.count == 1 && perform_slide(list_of_moves.first)
+
+
 
     list_of_moves.each do |move|
       if self.perform_jump(move)
@@ -294,9 +307,13 @@ class Piece
       end
     end
 
+    return false if !self.jump_moves.empty?
+
     return true
 
   end
+
+
 
   def valid_move_seq?(moves)
     duped_board = board.board_dup
@@ -321,5 +338,14 @@ class Piece
     return true if Board::FAR_ROW[color] == pos[0]
     return false
   end
+
+end
+
+
+if __FILE__ == $PROGRAM_NAME
+
+  g = Game.new(Board.new)
+
+  g.play
 
 end
